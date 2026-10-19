@@ -1,0 +1,7 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"passed","Mon Oct 19 20:49:46 UTC 2026","Mon Oct 19 20:49:51 UTC 2026","5415","","Account-specific behavior scenarios","","tests.AccountBehaviorTests","performanceGlitchUserEventuallyReachesInventory","TC_010 performance_glitch_user eventually reaches inventory",""
+"passed","Mon Oct 19 20:49:52 UTC 2026","Mon Oct 19 20:49:53 UTC 2026","528","","Shopping cart scenarios","","tests.CartTests","standardUserCanAddOneProductToCart","TC_013 Standard user can add one product to cart",""
+"passed","Mon Oct 19 20:49:55 UTC 2026","Mon Oct 19 20:49:55 UTC 2026","262","","Login scenarios","","tests.LoginTests","lockedOutUserIsRejected","TC_002 Locked-out user is rejected",""
+"passed","Mon Oct 19 20:49:53 UTC 2026","Mon Oct 19 20:49:54 UTC 2026","701","","Checkout scenarios","","tests.CheckoutTests","standardUserCanCompleteCheckout","TC_021 Standard user can complete checkout",""
+"passed","Mon Oct 19 20:49:51 UTC 2026","Mon Oct 19 20:49:52 UTC 2026","426","","Account-specific behavior scenarios","","tests.AccountBehaviorTests","problemUserDisplaysDuplicateProductImages","TC_019 problem_user displays the observed duplicate product images",""
+"passed","Mon Oct 19 20:49:54 UTC 2026","Mon Oct 19 20:49:55 UTC 2026","359","","Login scenarios","","tests.LoginTests","standardUserCanLoginSuccessfully","TC_001 Standard user can log in successfully",""
