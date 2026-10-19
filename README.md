@@ -1206,4 +1206,7 @@ https://prameyudas.github.io/playwright-java-saucedemo-automation/api-report/ind
 
 Automated test reports are generated using Allure. Both UI (Playwright Java) and API (Rest Assured) test reports are published as GitHub Actions artifacts and can optionally be deployed to GitHub Pages for easy access and historical review.
 
+## Bugs / Observations
 
+- GitHub Actions required explicit write permissions for Pages deployment.
+- Playwright dependencies were missing on Ubuntu runners and required browser installation with dependencies.
