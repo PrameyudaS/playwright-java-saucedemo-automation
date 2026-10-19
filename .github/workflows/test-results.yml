@@ -69,24 +69,40 @@ jobs:
 
   publish-report:
     if: always()
-    needs: [ui-tests, api-tests]
-
+    needs: [ ui-tests, api-tests ]
     runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v4
+    permissions:
+      contents: write
 
-      - uses: actions/download-artifact@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download reports
+        uses: actions/download-artifact@v4
         with:
           path: reports
 
-      - name: Prepare Site
+      - name: Verify downloaded reports
         run: |
-          mkdir site
-          cp -r reports/ui-allure-report site/ui-report
-          cp -r reports/api-allure-report site/api-report
+          find reports -maxdepth 3 -type f | sort
+          test -f reports/ui-allure-report/index.html
+          test -f reports/api-allure-report/index.html
 
-      - name: Deploy Pages
+      - name: Prepare GitHub Pages site
+        run: |
+          mkdir -p site/ui-report site/api-report
+          cp -R reports/ui-allure-report/. site/ui-report/
+          cp -R reports/api-allure-report/. site/api-report/
+
+      - name: Verify GitHub Pages site
+        run: |
+          test -f site/ui-report/index.html
+          test -f site/api-report/index.html
+          find site -maxdepth 2 -type f | sort
+
+      - name: Deploy reports to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

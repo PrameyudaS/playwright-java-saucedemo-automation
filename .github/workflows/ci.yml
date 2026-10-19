@@ -15,7 +15,6 @@ concurrency:
 
 jobs:
   ui-tests:
-    name: UI Tests
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -27,46 +26,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Java 21
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "21"
           cache: maven
 
-      - name: Resolve Maven dependencies
+      - name: Build project without tests
         run: mvn --batch-mode --no-transfer-progress install -DskipTests
 
-      - name: Install Chromium and operating-system dependencies
+      - name: Install Chromium and system dependencies
         run: |
           sudo --preserve-env=PATH mvn --batch-mode --no-transfer-progress \
             exec:java \
             -Dexec.mainClass=com.microsoft.playwright.CLI \
             -Dexec.args="install --with-deps chromium"
 
-      - name: Run UI tests
+      - name: Run UI Tests
         run: mvn --batch-mode --no-transfer-progress clean test
 
-      - name: Generate UI Allure report
+      - name: Generate UI Allure Report
         if: always()
-        run: mvn --batch-mode --no-transfer-progress allure:report
+        run: mvn --batch-mode --no-transfer-progress io.qameta.allure:allure-maven:report
 
-      - name: Upload UI Allure report
+      - name: Upload UI Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ui-allure-report
-          path: ui-tests/target/site/allure-maven-plugin/
-          if-no-files-found: warn
-          retention-days: 14
-
-      - name: Upload UI Allure results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ui-allure-results
-          path: ui-tests/target/allure-results/
-          if-no-files-found: warn
+          path: ui-tests/target/site/allure-maven-plugin
+          if-no-files-found: error
           retention-days: 14
 
   api-tests:

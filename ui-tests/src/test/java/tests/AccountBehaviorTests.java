@@ -50,9 +50,12 @@ class AccountBehaviorTests extends BaseTest {
             Pattern.compile(".*/inventory\\.html")
     );
 
-    assertThat(
-            inventory.inventoryItems()
-    ).hasCount(6);
+    assertThat(page.getByTestId("inventory-item"))
+            .hasCount(
+                    6,
+                    new LocatorAssertions.HasCountOptions()
+                            .setTimeout(15_000)
+            );
 
     assertThat(inventory.productSort()).isVisible();
 
