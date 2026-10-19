@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import com.microsoft.playwright.assertions.LocatorAssertions;
 
 @DisplayName("Account-specific behavior scenarios")
 class AccountBehaviorTests extends BaseTest {
@@ -39,15 +40,28 @@ class AccountBehaviorTests extends BaseTest {
     InventoryPage inventory = new InventoryPage(page);
 
     long startedAt = System.nanoTime();
-    login.loginAs(TestUsers.PERFORMANCE_GLITCH, TestUsers.PASSWORD);
+
+    login.loginAs(
+            TestUsers.PERFORMANCE_GLITCH,
+            TestUsers.PASSWORD
+    );
 
     assertThat(page).hasURL(
-        Pattern.compile(".*/inventory\\.html"),
-        new PageAssertions.HasURLOptions().setTimeout(15_000));
-    assertThat(inventory.title()).hasText("Products");
-    assertThat(inventory.inventoryItems()).hasCount(6);
+            Pattern.compile(".*/inventory\\.html")
+    );
 
-    long durationMs = (System.nanoTime() - startedAt) / 1_000_000;
-    System.out.printf("performance_glitch_user login duration: %d ms%n", durationMs);
+    assertThat(
+            inventory.inventoryItems()
+    ).hasCount(6);
+
+    assertThat(inventory.productSort()).isVisible();
+
+    long durationMs =
+            (System.nanoTime() - startedAt) / 1_000_000;
+
+    System.out.printf(
+            "performance_glitch_user login duration: %d ms%n",
+            durationMs
+    );
   }
 }

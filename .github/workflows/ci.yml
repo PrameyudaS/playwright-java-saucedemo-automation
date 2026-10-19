@@ -23,6 +23,9 @@ jobs:
           - cart
           - checkout
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright/java:v1.63.0-noble
+      options: --user 1001
     timeout-minutes: 30
 
     defaults:
@@ -63,11 +66,17 @@ jobs:
       - name: Compile UI test project
         run: mvn --batch-mode --no-transfer-progress clean test-compile
 
-      - name: Install Playwright Chromium and Linux dependencies
-        run: >-
+      - name: Install Chromium system dependencies
+        run: >
           mvn --batch-mode --no-transfer-progress exec:java
           -Dexec.mainClass=com.microsoft.playwright.CLI
-          -Dexec.args="install --with-deps chromium"
+          -Dexec.args="install-deps chromium"
+
+      - name: Install Chromium browser
+        run: >
+          mvn --batch-mode --no-transfer-progress exec:java
+          -Dexec.mainClass=com.microsoft.playwright.CLI
+          -Dexec.args="install chromium"
 
       - name: Run UI test suite
         run: mvn --batch-mode --no-transfer-progress test -Dheadless=true

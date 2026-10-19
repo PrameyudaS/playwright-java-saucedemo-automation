@@ -29,6 +29,10 @@ public class InventoryPage {
     return product(name).locator("img");
   }
 
+  public Locator productSort() {
+    return page.getByTestId("product-sort-container");
+  }
+
   public void addProduct(String name) {
     product(name).getByRole(
         AriaRole.BUTTON,
