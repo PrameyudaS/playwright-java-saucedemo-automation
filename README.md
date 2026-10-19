@@ -1,4 +1,4 @@
-# SauceDemo UI Automation
+# Part 1: SauceDemo UI Automation
 ## Overview
 
 This project contains UI automation tests for the SauceDemo application using:
@@ -346,3 +346,814 @@ Given more time, I would focus on expanding test coverage, improving automation 
 - Review flaky tests and improve synchronization using Playwright's built-in auto-waiting and web-first assertions without introducing unnecessary retries.
 
 These improvements would help increase test coverage, strengthen defect detection, and make the automation framework more scalable and reliable.
+
+
+# Part 2: GoREST API Automation
+
+## Overview
+
+This project contains API automation tests for the GoREST User Management API.
+
+**Technology Stack**
+
+- Java 21
+- REST Assured
+- JUnit 5
+- Maven
+
+**API Under Test**
+
+https://gorest.co.in/public/v2
+
+The objective of this project is to validate critical user-management functionality, including CRUD operations, authentication, validation rules, and failure scenarios while maintaining a clean, reusable, and scalable test architecture.
+
+---
+
+# Prerequisites
+
+- Java 17 or later (Java 21 recommended)
+- Maven 3.9+
+- GoREST Account
+- GoREST Personal Access Token
+
+---
+
+# Authentication Setup
+
+Generate a Personal Access Token from your GoREST account.
+
+The framework supports two methods:
+
+## Option 1: Environment Variable (Recommended)
+
+### PowerShell
+
+```powershell
+$env:GOREST_API_TOKEN="your_token_here"
+mvn clean test
+```
+
+### Command Prompt
+
+```cmd
+set GOREST_API_TOKEN=your_token_here
+mvn clean test
+```
+
+---
+
+## Option 2: Local .env File
+
+Create a file named:
+
+```text
+.env
+```
+
+inside the project root.
+
+Example:
+
+```text
+GOREST_API_TOKEN=your_token_here
+```
+
+The `.env` file is excluded through `.gitignore`.
+
+The framework fails immediately if no token is provided.
+
+---
+
+# Exact Commands
+
+## Run All API Tests
+
+```powershell
+mvn clean test
+```
+
+## Run Specific Test Class
+
+```powershell
+mvn "-Dtest=UserApiTests" test
+```
+
+## Compile Without Running Tests
+
+```powershell
+mvn clean test-compile
+```
+
+---
+
+# Project Structure
+
+```text
+api-tests/
+│
+├── pom.xml
+├── README.md
+├── .env.example
+│
+└── src
+    └── test
+        ├── java
+        │
+        ├── assertions
+        │   └── ApiAssertions.java
+        │
+        ├── client
+        │   ├── ApiExchange.java
+        │   └── UserApiClient.java
+        │
+        ├── config
+        │   └── ApiConfig.java
+        │
+        ├── model
+        │   ├── UserRequest.java
+        │   ├── UserResponse.java
+        │   └── ValidationError.java
+        │
+        ├── tests
+        │   ├── BaseApiTest.java
+        │   └── UserApiTests.java
+        │
+        └── util
+            └── TestDataFactory.java
+```
+
+---
+
+# Architectural Decisions
+
+## 1. Reusable API Client Layer
+
+### Decision
+
+All endpoint interactions are implemented inside a dedicated service layer:
+
+```java
+UserApiClient
+```
+
+### Reason
+
+This prevents REST Assured requests from being duplicated across test methods.
+
+Example:
+
+```java
+users.createUser(user);
+users.getUser(id);
+users.updateUser(id, user);
+users.deleteUser(id);
+```
+
+instead of repeatedly writing:
+
+```java
+given()
+.when()
+.post(...)
+```
+
+Benefits:
+
+- Reusability
+- Easier maintenance
+- Cleaner tests
+- Centralized endpoint management
+
+---
+
+## 2. POJO Request and Response Models
+
+### Decision
+
+Java records are used for request and response payloads.
+
+Examples:
+
+```java
+UserRequest
+UserResponse
+ValidationError
+```
+
+### Reason
+
+Avoids raw JSON string manipulation.
+
+Benefits:
+
+- Strong typing
+- Cleaner code
+- Easier serialization/deserialization
+- Better IDE support
+
+---
+
+## 3. Shared Assertion Layer
+
+### Decision
+
+Common validations are centralized in:
+
+```java
+ApiAssertions
+```
+
+### Reason
+
+Avoids repeated assertions across tests.
+
+Examples:
+
+```java
+assertStatus(...)
+assertUserMatches(...)
+assertValidationError(...)
+```
+
+Benefits:
+
+- Reduced duplication
+- Consistent validations
+- Easier maintenance
+
+---
+
+## 4. Dynamic Test Data Generation
+
+### Decision
+
+Unique users are created for every test execution using UUID-based values.
+
+Example:
+
+```text
+api.test.a1b2c3d4@example.com
+```
+
+### Reason
+
+GoREST is a shared public service.
+
+Hardcoded email addresses cause failures when tests are re-run.
+
+Benefits:
+
+- Repeatable execution
+- No collisions
+- Safe parallel reruns in the future
+
+---
+
+## 5. Automatic Cleanup
+
+### Decision
+
+Every user created during a test is tracked and deleted in cleanup.
+
+### Reason
+
+The assignment explicitly states:
+
+> Never update or delete users you did not create.
+
+Benefits:
+
+- Keeps the environment clean
+- Supports repeatable execution
+- Prevents pollution of shared test data
+
+---
+
+## 6. Useful Failure Diagnostics
+
+### Decision
+
+Assertion failures include:
+
+- Request information
+- Response status
+- Response headers
+- Response body
+
+Example:
+
+```text
+--- REQUEST ---
+GET /users/123
+
+--- RESPONSE ---
+Status: 404
+
+Body:
+{
+  "message": "Resource not found"
+}
+```
+
+### Reason
+
+Provides actionable troubleshooting information instead of only stack traces.
+
+---
+
+# Test Scenarios
+
+## API_001 Create User Successfully
+
+Create a new user with unique data.
+
+Expected:
+
+```text
+201 Created
+```
+
+---
+
+## API_002 Get User Successfully
+
+Retrieve a user created during the test.
+
+Expected:
+
+```text
+200 OK
+```
+
+---
+
+## API_003 Update User Successfully
+
+Update user details and verify persistence.
+
+Expected:
+
+```text
+200 OK
+```
+
+---
+
+## API_004 Delete User Successfully
+
+Delete a created user.
+
+Expected:
+
+```text
+204 No Content
+```
+
+---
+
+## API_005 Verify Deleted User No Longer Exists
+
+Request the deleted user.
+
+Expected:
+
+```text
+404 Not Found
+```
+
+---
+
+## API_006 List Users
+
+Retrieve a list of users without assuming ordering.
+
+Expected:
+
+```text
+200 OK
+```
+
+---
+
+## API_007 Duplicate Email Validation
+
+Attempt to create another user using an existing email address.
+
+Expected:
+
+```text
+422 Unprocessable Entity
+```
+
+---
+
+## API_008 Invalid Email Validation
+
+Attempt to create a user with an invalid email format.
+
+Expected:
+
+```text
+422 Unprocessable Entity
+```
+
+---
+
+## API_009 Missing Required Field Validation
+
+Attempt to create a user without a required field.
+
+Expected:
+
+```text
+422 Unprocessable Entity
+```
+
+---
+
+## API_010 Missing Authentication
+
+Attempt to create a user without a Bearer token.
+
+Expected:
+
+```text
+401 Unauthorized
+```
+
+---
+
+# Design Considerations
+
+Because GoREST is a shared live service:
+
+- Unique data is generated for every run.
+- Tests never use fixed user IDs.
+- Tests do not assume user ordering.
+- Only records created by the test are updated or deleted.
+- Cleanup runs after execution.
+- Authentication is externalized from source control.
+
+---
+
+# CI/CD Considerations
+
+Store the API token securely as a GitHub Actions secret.
+
+Example:
+
+```yaml
+env:
+  GOREST_API_TOKEN: ${{ secrets.GOREST_API_TOKEN }}
+```
+
+Never commit:
+
+```text
+.env
+```
+
+or any token value to source control.
+
+---
+
+# AI Usage Notes
+
+AI assistance was used for:
+
+- Test scenario brainstorming
+- Project structure design
+- Boilerplate code generation
+- Documentation drafting
+
+All generated content was reviewed, validated, and modified where necessary before inclusion in the final solution.
+``
+
+# Part 3: CI/CD Findings and Fixes
+
+The provided `ci-broken.yml` workflow was reviewed, debugged, and extended to support both UI and API automation suites.
+
+The repository assumes the default branch is named:
+
+```text
+main
+```
+
+The final workflow runs on:
+
+- Pushes to `main`
+- Pull Requests targeting `main`
+
+---
+
+## Bugs Found in the Starter Workflow
+
+### Bug 1: Missing Repository Checkout
+
+#### Problem
+
+The workflow did not contain:
+
+```yaml
+actions/checkout
+```
+
+Without checking out the repository, the GitHub runner has no access to the project source code.
+
+#### Fix
+
+Added:
+
+```yaml
+- uses: actions/checkout@v4
+```
+
+to both jobs.
+
+---
+
+### Bug 2: Incorrect Java Version
+
+#### Problem
+
+The starter workflow used:
+
+```yaml
+java-version: '8'
+```
+
+Both the UI automation project and API automation project require Java 17+ and were implemented using Java 21.
+
+#### Fix
+
+Updated Java configuration to:
+
+```yaml
+java-version: '21'
+```
+
+using:
+
+```yaml
+uses: actions/setup-java@v4
+```
+
+---
+
+### Bug 3: Maven Executed from Wrong Directory
+
+#### Problem
+
+The repository contains multiple Maven projects:
+
+```text
+ui-tests/
+api-tests/
+```
+
+The starter workflow executed Maven commands from the repository root.
+
+This would fail because Maven could not find the intended project.
+
+#### Fix
+
+Added:
+
+```yaml
+working-directory: ui-tests
+```
+
+for UI tests and:
+
+```yaml
+working-directory: api-tests
+```
+
+for API tests.
+
+---
+
+### Bug 4: UI Test Failures Were Hidden
+
+#### Problem
+
+The workflow contained:
+
+```yaml
+mvn clean test || true
+```
+
+The `|| true` statement forces a successful exit code even when tests fail.
+
+As a result:
+
+- Red tests produce a green pipeline.
+- Failures are hidden.
+- CI cannot be trusted.
+
+#### Fix
+
+Removed:
+
+```yaml
+|| true
+```
+
+Now the workflow fails correctly when UI tests fail.
+
+---
+
+### Bug 5: Playwright Browsers Were Not Installed
+
+#### Problem
+
+The workflow attempted to execute Playwright tests without installing browser binaries.
+
+This causes failures on GitHub runners.
+
+#### Fix
+
+Added Playwright installation step:
+
+```yaml
+mvn exec:java \
+-Dexec.mainClass=com.microsoft.playwright.CLI \
+-Dexec.args="install --with-deps chromium"
+```
+
+This installs Chromium and required Linux dependencies before tests run.
+
+---
+
+### Bug 6: Missing API Authentication Secret
+
+#### Problem
+
+The API suite requires:
+
+```text
+GOREST_API_TOKEN
+```
+
+but the starter workflow did not provide the token to the test execution environment.
+
+#### Fix
+
+Added:
+
+```yaml
+env:
+  GOREST_API_TOKEN: ${{ secrets.GOREST_API_TOKEN }}
+```
+
+using GitHub Actions repository secrets.
+
+---
+
+### Bug 7: No Validation That API Token Exists
+
+#### Problem
+
+If the secret is missing, the workflow would fail later with less helpful errors.
+
+#### Fix
+
+Added an explicit validation step:
+
+```yaml
+if [ -z "$GOREST_API_TOKEN" ]; then
+  exit 1
+fi
+```
+
+This produces a clear error message and fails early.
+
+---
+
+### Bug 8: UI and API Tests Shared a Single Job
+
+#### Problem
+
+The starter workflow executed both suites within the same job.
+
+A failure in one stage could prevent visibility into the other suite.
+
+#### Fix
+
+Split the workflow into two independent jobs:
+
+```yaml
+ui-tests
+api-tests
+```
+
+Benefits:
+
+- Faster troubleshooting
+- Clearer reporting
+- Independent execution
+
+---
+
+### Bug 9: No Test Reports Were Preserved
+
+#### Problem
+
+The workflow did not upload any test artifacts.
+
+Developers would need to reproduce failures locally to investigate issues.
+
+#### Fix
+
+Added artifact upload steps:
+
+```yaml
+actions/upload-artifact@v4
+```
+
+for:
+
+```text
+target/surefire-reports/
+```
+
+This preserves test results even when failures occur.
+
+---
+
+### Bug 10: No Maven Dependency Caching
+
+#### Problem
+
+Dependencies were downloaded during every workflow run.
+
+This increased execution time unnecessarily.
+
+#### Fix
+
+Enabled Maven cache:
+
+```yaml
+cache: maven
+```
+
+inside:
+
+```yaml
+actions/setup-java
+```
+
+This significantly reduces build duration for subsequent executions.
+
+---
+
+### Bug 11: No Timeout Protection
+
+#### Problem
+
+A hanging browser session or stalled API request could keep jobs running indefinitely.
+
+#### Fix
+
+Added job-level timeouts:
+
+```yaml
+timeout-minutes: 30
+```
+
+for UI tests and
+
+```yaml
+timeout-minutes: 15
+```
+
+for API tests.
+
+---
+
+## Additional Improvements
+
+Beyond fixing the starter workflow, the following improvements were implemented:
+
+- Separate UI and API jobs
+- Maven dependency caching
+- Secure secret handling
+- Playwright browser installation
+- Test artifact preservation
+- Explicit timeout configuration
+- Independent failure reporting
+- Clear diagnostics for missing secrets
+
+---
+
+## Result
+
+The final CI pipeline is considered trustworthy because:
+
+- UI failures fail the workflow.
+- API failures fail the workflow.
+- Missing secrets are detected immediately.
+- Test reports are preserved automatically.
+- Both test suites execute using the correct Java version.
+- Build results accurately reflect the state of the application.
+
