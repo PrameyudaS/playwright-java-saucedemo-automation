@@ -12,7 +12,7 @@ public class InventoryPage {
 
   public InventoryPage(Page page) { this.page = page; }
 
-  public Locator title() { return page.getByTestId("title"); }
+  public Locator title() { return page.getByText( "Products", new Page.GetByTextOptions().setExact(true) ); }
   public Locator inventoryItems() { return page.getByTestId("inventory-item"); }
   public Locator cartBadge() { return page.getByTestId("shopping-cart-badge"); }
   public Locator cartLink() { return page.getByTestId("shopping-cart-link"); }
