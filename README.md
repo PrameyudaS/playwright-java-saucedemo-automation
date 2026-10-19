@@ -1157,3 +1157,28 @@ The final CI pipeline is considered trustworthy because:
 - Both test suites execute using the correct Java version.
 - Build results accurately reflect the state of the application.
 
+
+# Optional stretch goals
+## Parallel Execution
+
+The UI suite supports parallel execution through JUnit 5 parallel test execution.
+
+Benefits:
+
+- Reduced CI execution time
+- Better resource utilization
+- Faster feedback for pull requests
+
+---
+
+## Test Reporting
+
+The pipeline generates test execution reports and publishes them as GitHub Actions artifacts.
+
+Artifacts include:
+
+- Surefire Reports
+- Allure Results
+- Allure HTML Report
+
+Reports are uploaded even when tests fail to simplify root-cause analysis.
