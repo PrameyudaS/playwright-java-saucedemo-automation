@@ -817,17 +817,6 @@ or any token value to source control.
 
 ---
 
-# AI Usage Notes
-
-AI assistance was used for:
-
-- Test scenario brainstorming
-- Project structure design
-- Boilerplate code generation
-- Documentation drafting
-
-All generated content was reviewed, validated, and modified where necessary before inclusion in the final solution.
-``
 
 # Part 3: CI/CD Findings and Fixes
 
@@ -1158,6 +1147,16 @@ The final CI pipeline is considered trustworthy because:
 - Build results accurately reflect the state of the application.
 
 
+# Part 4: AI assisted workflow
+AI tools were used throughout the assignment as productivity aids rather than as a source of truth. I used Microsoft Copilot/ChatGPT to help generate boilerplate code, draft test scenarios, create initial Playwright and Rest Assured project structures, explain framework setup, and review CI/CD workflow configuration.
+
+One example where AI output required verification was the GitHub Actions configuration for publishing Allure reports to GitHub Pages. The initial suggestions were incomplete and resulted in deployment issues, including missing permissions and report publishing problems. I diagnosed the failures using GitHub Actions logs, verified the generated files in the `gh-pages` branch, and adjusted the workflow configuration until the reports were successfully deployed.
+
+I also verified all generated test cases against the SauceDemo application and the GoRest API documentation rather than assuming the generated scenarios were correct. This included validating selectors, expected results, authentication configuration, and CI execution.
+
+I did not delegate the final selection of test coverage to AI. Choosing which scenarios were most important for login, cart, checkout, API CRUD operations, and account-specific behaviors required judgement about risk, business value, and maintainability. AI was used to suggest ideas, but the final test scope and implementation decisions were made manually after review.
+
+
 # Optional stretch goals
 ## Test Reporting
 
@@ -1175,9 +1174,11 @@ Reports are published as GitHub Actions artifacts after every workflow run.
 ### GitHub Pages
 
 UI Report:
-https://<github-username>.github.io/ui-automation-saucedemo/ui-report
+https://prameyudas.github.io/playwright-java-saucedemo-automation/ui-report/index.html
 
 API Report:
-https://<github-username>.github.io/ui-automation-saucedemo/api-report
+https://prameyudas.github.io/playwright-java-saucedemo-automation/api-report/index.html
 
 Automated test reports are generated using Allure. Both UI (Playwright Java) and API (Rest Assured) test reports are published as GitHub Actions artifacts and can optionally be deployed to GitHub Pages for easy access and historical review.
+
+
