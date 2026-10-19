@@ -71,6 +71,31 @@ mvn -Dtest=CheckoutTests test
 ```powershell
 mvn -Dtest=AccountBehaviorTests test
 ```
+# Project Structure
+```text
+├── pom.xml
+├── README.md
+└── src/
+    └── test/
+        └── java/
+            ├── base/
+            │   └── BaseTest.java
+            ├── data/
+            │   ├── TestUsers.java
+            │   └── CheckoutData.java
+            ├── pages/
+            │   ├── LoginPage.java
+            │   ├── InventoryPage.java
+            │   ├── CartPage.java
+            │   ├── CheckoutInformationPage.java
+            │   ├── CheckoutOverviewPage.java
+            │   └── CheckoutCompletePage.java
+            └── tests/
+                ├── LoginTests.java
+                ├── CartTests.java
+                ├── CheckoutTests.java
+                └── AccountBehaviorTests.java
+```
 
 # Architectural Decisions and Reasoning
 
