@@ -15,11 +15,8 @@ concurrency:
 
 jobs:
   ui-tests:
-    name: UI tests
+    name: UI Tests
     runs-on: ubuntu-latest
-    container:
-      image: mcr.microsoft.com/playwright/java:v1.63.0-noble
-      options: --user 1001
     timeout-minutes: 30
 
     defaults:
@@ -27,42 +24,48 @@ jobs:
         working-directory: ui-tests
 
     steps:
-      - name: Check out repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Java 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: "21"
           cache: maven
-          cache-dependency-path: ui-tests/pom.xml
 
-      - name: Compile UI test project
-        run: mvn --batch-mode --no-transfer-progress clean test-compile
+      - name: Resolve Maven dependencies
+        run: mvn --batch-mode --no-transfer-progress install -DskipTests
 
-      - name: Install Chromium system dependencies
-        run: >
-          mvn --batch-mode --no-transfer-progress exec:java
-          -Dexec.mainClass=com.microsoft.playwright.CLI
-          -Dexec.args="install-deps chromium"
+      - name: Install Chromium and operating-system dependencies
+        run: |
+          sudo --preserve-env=PATH mvn --batch-mode --no-transfer-progress \
+            exec:java \
+            -Dexec.mainClass=com.microsoft.playwright.CLI \
+            -Dexec.args="install --with-deps chromium"
 
-      - name: Install Chromium browser
-        run: >
-          mvn --batch-mode --no-transfer-progress exec:java
-          -Dexec.mainClass=com.microsoft.playwright.CLI
-          -Dexec.args="install chromium"
+      - name: Run UI tests
+        run: mvn --batch-mode --no-transfer-progress clean test
 
-      - name: Run UI test suite
-        run: mvn --batch-mode --no-transfer-progress test -Dheadless=true
+      - name: Generate UI Allure report
+        if: always()
+        run: mvn --batch-mode --no-transfer-progress allure:report
 
-      - name: Upload UI test results
+      - name: Upload UI Allure report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ui-test-results
-          path: |
-            ui-tests/target/surefire-reports/**
+          name: ui-allure-report
+          path: ui-tests/target/site/allure-maven-plugin/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload UI Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-allure-results
+          path: ui-tests/target/allure-results/
           if-no-files-found: warn
           retention-days: 14
 
