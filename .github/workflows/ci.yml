@@ -16,12 +16,6 @@ concurrency:
 jobs:
   ui-tests:
     name: UI tests
-    strategy:
-      matrix:
-        suite:
-          - login
-          - cart
-          - checkout
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright/java:v1.63.0-noble
@@ -33,25 +27,6 @@ jobs:
         working-directory: ui-tests
 
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-java@v4
-        with:
-         distribution: temurin
-         java-version: '21'
-
-      - name: Run Login Tests
-        if: matrix.suite == 'login'
-        run: mvn test -Dtest=LoginTests
-
-      - name: Run Cart Tests
-        if: matrix.suite == 'cart'
-        run: mvn test -Dtest=CartTests
-
-      - name: Run Checkout Tests
-        if: matrix.suite == 'checkout'
-        run: mvn test -Dtest=CheckoutTests
-
       - name: Check out repository
         uses: actions/checkout@v4
 
@@ -90,28 +65,6 @@ jobs:
             ui-tests/target/surefire-reports/**
           if-no-files-found: warn
           retention-days: 14
-
-      - name: Upload Allure Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-results
-          path: |
-            ui-tests/allure-results
-            api-tests/allure-results
-
-      - name: Generate Allure Report
-        run: |
-          allure generate allure-results \
-          -o allure-report \
-          --clean
-          ``
-      - name: Upload Allure Report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: allure-report
-          path: allure-report
 
   api-tests:
     name: API tests

@@ -1159,26 +1159,25 @@ The final CI pipeline is considered trustworthy because:
 
 
 # Optional stretch goals
-## Parallel Execution
-
-The UI suite supports parallel execution through JUnit 5 parallel test execution.
-
-Benefits:
-
-- Reduced CI execution time
-- Better resource utilization
-- Faster feedback for pull requests
-
----
-
 ## Test Reporting
 
-The pipeline generates test execution reports and publishes them as GitHub Actions artifacts.
+This project generates Allure reports for both UI and API automation suites.
 
-Artifacts include:
+### UI Report
+Generated from Playwright Java test execution.
 
-- Surefire Reports
-- Allure Results
-- Allure HTML Report
+### API Report
+Generated from Rest Assured test execution.
 
-Reports are uploaded even when tests fail to simplify root-cause analysis.
+### CI Artifacts
+Reports are published as GitHub Actions artifacts after every workflow run.
+
+### GitHub Pages
+
+UI Report:
+https://<github-username>.github.io/ui-automation-saucedemo/ui-report
+
+API Report:
+https://<github-username>.github.io/ui-automation-saucedemo/api-report
+
+Automated test reports are generated using Allure. Both UI (Playwright Java) and API (Rest Assured) test reports are published as GitHub Actions artifacts and can optionally be deployed to GitHub Pages for easy access and historical review.

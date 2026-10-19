@@ -1,0 +1,93 @@
+name: UI and API Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  ui-tests:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ui-tests
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Run UI Tests
+        run: mvn clean test
+
+      - name: Generate UI Allure Report
+        if: always()
+        run: mvn io.qameta.allure:allure-maven:report
+
+      - name: Upload UI Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-allure-report
+          path: ui-tests/target/site/allure-maven-plugin
+
+  api-tests:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: api-tests
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Run API Tests
+        env:
+          GOREST_API_TOKEN: ${{ secrets.GOREST_API_TOKEN }}
+        run: mvn clean test
+
+      - name: Generate API Allure Report
+        if: always()
+        run: mvn io.qameta.allure:allure-maven:report
+
+      - name: Upload API Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-allure-report
+          path: api-tests/target/site/allure-maven-plugin
+
+  publish-report:
+    if: always()
+    needs: [ui-tests, api-tests]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: reports
+
+      - name: Prepare Site
+        run: |
+          mkdir site
+          cp -r reports/ui-allure-report site/ui-report
+          cp -r reports/api-allure-report site/api-report
+
+      - name: Deploy Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: site
